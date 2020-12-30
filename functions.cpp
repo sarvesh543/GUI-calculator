@@ -125,6 +125,7 @@ std::string evaluate(std::string input){
 //uses recursion to evaluate brackets
 //returns DIVBYZERO if division with zero error happens
 
+    double temp;
     std::string result;
     std::vector<std::string> store;
     int prevend = 0;
@@ -160,7 +161,16 @@ std::string evaluate(std::string input){
                         if(evaluate(input.substr(i + 1, j - i - 1)) == "DIVBYZERO"){
                             return "DIVBYZERO";
                         }
-                        store.push_back(minusind.append(evaluate(input.substr(i + 1, j - i - 1))));
+                        temp = stod(evaluate(input.substr(i + 1, j - i - 1)));
+                        if(temp < 0){
+                            if(minusind == "-"){
+                                store.push_back(std::to_string(-temp));
+                            }else{
+                                store.push_back(std::to_string(temp));
+                            }
+                        }else{
+                            store.push_back(minusind.append(evaluate(input.substr(i + 1, j - i - 1))));
+                        }
                         i = j + 1;
                         prevend = j + 2;
                         if(input[j + 1] == '*' || input[j + 1] == '/'){
