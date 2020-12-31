@@ -3,6 +3,50 @@
 #include <string>
 #include <cmath>
 
+bool isnumber(std::string num){
+//checks if entered str is a digit
+//used in displaystring class addtodisplay function
+    if(num == "0" || num == "1" || num == "2" || num == "3" || num == "4" || num == "5" || num == "6" || num == "7" || num == "8" || num == "9"){
+        return true;
+    }
+    return false;
+}
+
+bool isoperator(std::string opr){
+//checks if entered str is a operator
+//used in displaystring class addtodisplay function
+    if(opr == "*" || opr == "/" || opr == "+" || opr == "-"){
+        return true;
+    }
+    return false;
+}
+
+std::vector<std::string> subvector(std::vector<std::string> &vect, int index1, int index2){
+//takes a vector and gives out a subvector from index1 to index2
+    std::vector<std::string> out;
+    for(int i = index1; i <= index2; i++){
+        out.push_back(vect[i]);
+    }
+    return out;
+}
+
+std::string concatenate(std::vector<std::string> vect){
+//joins all strings in a string vector into one string and outputs it
+    std::string s = "";
+    for(unsigned int i = 0; i < vect.size(); i++){
+        s.append(vect[i]);
+    }
+    return s;
+}
+
+std::vector<std::string> splitstring(std::string str){
+//takes a string and splits it into characters which are converted to strings and stored in a string vector
+    std::vector<std::string> temp;
+    for(unsigned int i = 0; i < str.length(); i++){
+        temp.push_back(ctos(str[i]));
+    }
+    return temp;
+}
 
 void lonedecimalcorrection(std::vector<std::string> &dec){
 //takes a string vector containing numbers and * andd / as input
@@ -49,25 +93,6 @@ bool divbyzero(std::vector<std::string> inp){
                 return true;
             }
         }
-    }
-    return false;
-}
-
-
-bool isnumber(std::string num){
-//checks if entered str is a digit
-//used in displaystring class addtodisplay function
-    if(num == "0" || num == "1" || num == "2" || num == "3" || num == "4" || num == "5" || num == "6" || num == "7" || num == "8" || num == "9"){
-        return true;
-    }
-    return false;
-}
-
-bool isoperator(std::string opr){
-//checks if entered str is a operator
-//used in displaystring class addtodisplay function
-    if(opr == "*" || opr == "/" || opr == "+" || opr == "-" || opr == "(" || opr == ")"){
-        return true;
     }
     return false;
 }
@@ -119,11 +144,12 @@ double sum(std::vector<std::string> numbers){
     return result;
 }
 
-std::string evaluate(std::string input){
+std::string evaluate(std::vector<std::string> vect){
 //equation parser
 //takes input string and gives the output num in form of string
 //uses recursion to evaluate brackets
 //returns DIVBYZERO if division with zero error happens
+    std::vector<std::string> input = vect;
 
     double temp;
     std::string result;
@@ -131,57 +157,59 @@ std::string evaluate(std::string input){
     int prevend = 0;
     std::string minusind = "";
     int bracketcount = 0;
-    for(unsigned int i = 0; i < input.length(); i++){
+    for(unsigned int i = 0; i < input.size(); i++){
             if(prevend > 0){
-                if(input[abs(prevend - 1)] == '-'){
+                if(input[abs(prevend - 1)] == "-"){
                     minusind = "-";
                 }
             }
-            if(input[i] == '*' || input[i] == '/'){
-                store.push_back(minusind.append(input.substr(prevend, i - prevend)));
-                store.push_back(ctos(input[i]));
+            if(input[i] == "*" || input[i] == "/"){       
+                store.push_back(minusind.append(concatenate(subvector(input, prevend, i - 1))));
+                store.push_back(input[i]);
                 prevend = i + 1;
                 minusind = "";
-            }else if(input[i] == '+' || input[i] == '-'){
-                if(input[i] == '-' && i == 0){
+            }else if(input[i] == "+" || input[i] == "-"){
+                if(input[i] == "-" && i == 0){
                 }else{
-                    store.push_back(minusind.append(input.substr(prevend, i - prevend)));
+                    store.push_back(minusind.append(concatenate(subvector(input, prevend, i - 1))));
                 }
                 prevend = i + 1;
                 minusind = "";
-            }else if(input[i] == '('){
+            }else if(input[i] == "("){
                 bracketcount += 1;
-                for(unsigned int j = i + 1; j < input.length(); j++){
-                    if(input[j] == '('){
+                for(unsigned int j = i + 1; j < input.size(); j++){
+                    if(input[j] == "("){
                         bracketcount += 1;
-                    }else if(input[j] == ')'){
+                    }else if(input[j] == ")"){
                         bracketcount -= 1;
                     }
                     if(bracketcount == 0){
-                        if(evaluate(input.substr(i + 1, j - i - 1)) == "DIVBYZERO"){
+                        if(evaluate(subvector(input, i+1 , j-1)) == "DIVBYZERO"){
                             return "DIVBYZERO";
                         }
-                        temp = stod(evaluate(input.substr(i + 1, j - i - 1)));
+                        temp = stod(evaluate(subvector(input, i+1 , j-1)));
                         if(temp < 0){
                             if(minusind == "-"){
                                 store.push_back(std::to_string(-temp));
-                            }else{
+                            }else{                 
                                 store.push_back(std::to_string(temp));
                             }
                         }else{
-                            store.push_back(minusind.append(evaluate(input.substr(i + 1, j - i - 1))));
+                            store.push_back(minusind.append(evaluate(subvector(input, i+1 , j-1))));
                         }
                         i = j + 1;
                         prevend = j + 2;
-                        if(input[j + 1] == '*' || input[j + 1] == '/'){
-                            store.push_back(ctos(input[j + 1]));
+                        if(j < input.size()-1){
+                            if(input[j + 1] == "*" || input[j + 1] == "/"){
+                                store.push_back(input[j + 1]);
+                            }
                         }
                         minusind = "";
                         break;
                     }
                 }
-            }else if(i == input.length()-1){
-                store.push_back(minusind.append(input.substr(prevend, i - prevend + 1)));
+            }else if(i == input.size()-1){
+                store.push_back(minusind.append(concatenate(subvector(input, prevend, i))));
                 prevend = i + 1;
                 minusind = "";
             }

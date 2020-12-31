@@ -35,6 +35,5 @@ void History::removelastdata(){
     if(size() > 4){
         mainhistorydata.pop_back();
         secondaryhistorydata.pop_back();
-
     }
 }

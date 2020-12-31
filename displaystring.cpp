@@ -10,94 +10,132 @@ Displaystring::Displaystring()
 
 std::string Displaystring::display(){
 // returns the string to be displayed
-    return store;
+    return concatenate(storage);
 }
 
-void Displaystring::addtodisplay(std::string input){
-// this giant if else block is to make sure that the expression entered by user is mathematically valid
-// it takes string input and appends it to the private string store
+// the below functions are to make sure that all inputs that are entered have a valid syntax
 
-    if(store == "ERROR"){
-        store = "0";
+void Displaystring::adddecimal(std::string input){
+    if(storage[0] == "ERROR"){
+        storage = {"0"};
     }
-    if((store[0] == '0' && store.length() == 1)){
-        if(isnumber(input) || input == "("){
-            store = input;
-        }else if((isoperator(input) || input == ".") && input != "("){
-            store.append(input);
+    if(isnumber(storage[storage.size()-1])){
+        storage.push_back(input);
+    }
+}
+
+void Displaystring::addopr(std::string input){
+    if(storage[0] == "ERROR"){
+        storage = {"0"};
+    }
+    if(storage[storage.size() - 1] == "("){
+        if(input =="-"){
+            storage.push_back(input);
+        }else if(isoperator(storage[storage.size()-2])){
+        storage.pop_back();
+        storage.pop_back();
+        storage.push_back(input);
         }
-    }else{
-        if((isoperator(ctos(store[store.length()-1])) || ctos(store[store.length()-1]) == ".") && !isnumber(input) && input != "("){
-            if(store[store.length()-1] == '-' && store[store.length()-2] == '('){
-                if(isoperator(ctos(store[store.length()-3]))){
-                    store.erase(store.length()-1);
-                    store.erase(store.length()-1);
-                    store.erase(store.length()-1);
-                    store.append(input);
-                }else if(store.length() == 2){
-                    store.erase(store.length()-1);
-                    store[store.length()-1] = '0';
-                    store.append(input);
-                }else{
-                    store.erase(store.length()-1);
-                    store.erase(store.length()-1);
-                    store.append(input);
-                }
-            }else if(store[store.length()-1] == '(' && input == "-"){
-                store.append(input);
-            }else if(store[store.length()-1] == '(' && input == ")"){
-                store.append("0)");
-            }else if((store[store.length()-1] == '(' || store[store.length()-1] == '.') && isoperator(ctos(store[store.length()-2])) && input != "."){
-                store.erase(store.length()-1);
-                store.erase(store.length()-1);
-                store.append(input);
-            }else if(store[store.length()-1] == ')'){
-                store.append(input);
+     }else if(storage[storage.size()-1] == "-"){
+        if(storage[storage.size()-2] == "("){
+            if(isoperator(storage[storage.size()-3])){
+                storage.pop_back();
+                storage.pop_back();
+                storage.pop_back();
+                storage.push_back(input);
+            }else if(storage.size() == 2){
+                storage.pop_back();
+                storage[storage.size()-1] = '0';
+                storage.push_back(input);
             }else{
-                store.erase(store.length() - 1);
-                store.append(input);
+                storage.pop_back();
+                storage.pop_back();
+                storage.push_back(input);
             }
+        }
+     }else if(((storage[storage.size()-1] == "(") || storage[storage.size()-1] == ".") && isoperator(storage[storage.size()-2]) && input != "."){
+        storage.pop_back();
+        storage.pop_back();
+        storage.push_back(input);
+     }else if(isoperator(storage[storage.size()-1])){
+        storage.pop_back();
+        storage.push_back(input);
+     }else{
+        storage.push_back(input);
+     }
+}
+
+
+
+
+void Displaystring::addbracket(std::string input){
+    if(storage[0] == "ERROR"){
+        storage = {"0"};
+    }
+    if(input == "("){
+        if(storage[0] == "0" && storage.size() == 1){
+            storage[0] = input;
+        }else if(storage[storage.size()-1] == "(" || isoperator(storage[storage.size()-1])){
+            storage.push_back(input);
         }else{
-            if(input == "(" && (store[store.length()-1] == ')' || isnumber(ctos(store[store.length()-1])))){
-                store.append("*(");
-            }else if(input == "(" && store[store.length()-1] == '.'){
-                store[store.length()-1] = '*';
-                store.append(input);
-            }else if(isnumber(input) && store[store.length()-1] == ')'){
-                store.append("*");
-                store.append(input);
-            }else{
-                store.append(input);
-            }
+            storage.push_back("*");
+            storage.push_back(input);
+        }
+    }else if(input == ")"){
+        if(isoperator(storage[storage.size()-1])){
+              storage.pop_back();
+              storage.push_back(input);
+        }else if(storage[storage.size()-1] == "("){
+            storage.push_back("0");
+            storage.push_back(input);
+        }else{
+            storage.push_back(input);
         }
     }
 }
+
+void Displaystring::addnum(std::string input){
+    if(storage[0] == "ERROR"){
+        storage = {"0"};
+    }
+    if(storage.size() == 1 && storage[storage.size()-1] == "0"){
+        storage.pop_back();
+        storage.push_back(input);
+    }else if(storage[storage.size()-1] == ")"){
+        storage.push_back("*");
+        storage.push_back(input);
+    }else{
+        storage.push_back(input);
+    }
+}
+
+// the input functions end here
 
 void Displaystring::cleardisplay(){
 //simply sets store to "0" so that display will also be "0" when display function is called
-    store = "0";
+    storage = {"0"};
 }
 
 void Displaystring::clearelement(){
 // clears a single charecter on display except for if the display is showing "ERROR"
 // if only one charecter on display then sets display to "0"
-    if(store == "ERROR"){
-        store = "0";
-    }else if(!store.empty() && store.length() != 1){
-        store.erase(store.length() - 1);
-    }else if(store.length() == 1){
-        store = "0";
+    if(concatenate(storage) == "ERROR"){
+        storage = {"0"};
+    }else if(!storage.empty() && storage.size() != 1){
+        storage.pop_back();
+    }else if(storage.size() == 1){
+        storage = {"0"};
     }
 }
 
 void Displaystring::answer(){
-// passes the expression stored in store to be evaluated by evaluate function defined in functions.h
+// passes the expression stored in storage to be evaluated by evaluate function defined in functions.h
     std::string temp;
-    temp = evaluate(store);
-    store = temp;
+    temp = evaluate(storage);
+    storage = splitstring(temp);
 }
 
 void Displaystring::setdisplay(std::string todisp){
 // used to set display to anything
-    store = todisp;
+    storage = {todisp};
 }

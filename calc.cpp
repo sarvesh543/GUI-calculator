@@ -96,103 +96,103 @@ void calc::on_button_clearall_clicked()
 
 void calc::on_button_closebracket_clicked()
 {
-    maintext.addtodisplay(")");
+    maintext.addbracket(")");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_openbracket_clicked()
 {
-    maintext.addtodisplay("(");
+    maintext.addbracket("(");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_one_clicked()
 {
-    maintext.addtodisplay("1");
+    maintext.addnum("1");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_two_clicked()
 {
-    maintext.addtodisplay("2");
+    maintext.addnum("2");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_three_clicked()
 {
-    maintext.addtodisplay("3");
+    maintext.addnum("3");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_multiply_clicked()
 {
-    maintext.addtodisplay("*");
+    maintext.addopr("*");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_divide_clicked()
 {
-    maintext.addtodisplay("/");
+    maintext.addopr("/");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_six_clicked()
 {
-    maintext.addtodisplay("6");
+    maintext.addnum("6");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_five_clicked()
 {
-    maintext.addtodisplay("5");
+    maintext.addnum("5");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_four_clicked()
 {
-    maintext.addtodisplay("4");
+    maintext.addnum("4");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_seven_clicked()
 {
-    maintext.addtodisplay("7");
+    maintext.addnum("7");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_eight_clicked()
 {
-    maintext.addtodisplay("8");
+    maintext.addnum("8");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_nine_clicked()
 {
-    maintext.addtodisplay("9");
+    maintext.addnum("9");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_plus_clicked()
 {
-    maintext.addtodisplay("+");
+    maintext.addopr("+");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_minus_clicked()
 {
-    maintext.addtodisplay("-");
+    maintext.addopr("-");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_zero_clicked()
 {
-    maintext.addtodisplay("0");
+    maintext.addnum("0");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
 void calc::on_button_decimal_clicked()
 {
-    maintext.addtodisplay(".");
+    maintext.adddecimal(".");
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
@@ -204,6 +204,13 @@ void calc::on_button_equals_clicked()
         ui->label_secondary->setText(QString::fromStdString("invalid brackets"));
         QTimer::singleShot(2000, this, SLOT(seclabelclear()));
     }else{
+        char placehold;
+        placehold = maintext.display()[maintext.display().length()-1];
+        if(placehold == '*' || placehold == '/'){
+            maintext.addnum("1");
+        }else if(placehold == '+' || placehold == '-'){
+            maintext.addnum("0");
+        }
         sectext.setdisplay(maintext.display());
         maintext.answer();
         if(maintext.display() == "DIVBYZERO" || maintext.display() == "nan"){
