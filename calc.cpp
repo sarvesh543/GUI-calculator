@@ -196,6 +196,83 @@ void calc::on_button_decimal_clicked()
     ui->label_primary->setText(QString::fromStdString(maintext.display()));
 }
 
+void calc::on_button_cuberoot_clicked()
+{
+    maintext.addopr("^");
+    maintext.addbracket("(");
+    maintext.addnum("1");
+    maintext.addopr("/");
+    maintext.addnum("3");
+    maintext.addbracket(")");
+    ui->label_primary->setText(QString::fromStdString(maintext.display()));
+}
+
+void calc::on_button_squareroot_clicked()
+{
+    maintext.addopr("^");
+    maintext.addbracket("(");
+    maintext.addnum("1");
+    maintext.addopr("/");
+    maintext.addnum("2");
+    maintext.addbracket(")");
+    ui->label_primary->setText(QString::fromStdString(maintext.display()));
+}
+
+void calc::on_button_square_clicked()
+{
+    maintext.addopr("^");
+    maintext.addbracket("(");
+    maintext.addnum("2");
+    maintext.addbracket(")");
+    ui->label_primary->setText(QString::fromStdString(maintext.display()));
+}
+
+void calc::on_button_cube_clicked()
+{
+    maintext.addopr("^");
+    maintext.addbracket("(");
+    maintext.addnum("3");
+    maintext.addbracket(")");
+    ui->label_primary->setText(QString::fromStdString(maintext.display()));
+}
+
+void calc::on_button_power_clicked()
+{
+    maintext.addopr("^");
+    maintext.addbracket("(");
+    ui->label_primary->setText(QString::fromStdString(maintext.display()));
+}
+
+void calc::on_button_sin_clicked()
+{
+    maintext.addfunc("sin");
+    ui->label_primary->setText(QString::fromStdString(maintext.display()));
+}
+
+void calc::on_button_cos_clicked()
+{
+    maintext.addfunc("cos");
+    ui->label_primary->setText(QString::fromStdString(maintext.display()));
+}
+
+void calc::on_button_tan_clicked()
+{
+    maintext.addfunc("tan");
+    ui->label_primary->setText(QString::fromStdString(maintext.display()));
+}
+
+void calc::on_button_ln_clicked()
+{
+    maintext.addfunc("ln");
+    ui->label_primary->setText(QString::fromStdString(maintext.display()));
+}
+
+void calc::on_button_log_clicked()
+{
+    maintext.addfunc("log");
+    ui->label_primary->setText(QString::fromStdString(maintext.display()));
+}
+
 void calc::on_button_equals_clicked()
 {
     if(bracketerror(maintext.display())){
@@ -206,16 +283,31 @@ void calc::on_button_equals_clicked()
     }else{
         char placehold;
         placehold = maintext.display()[maintext.display().length()-1];
-        if(placehold == '*' || placehold == '/'){
+        if(placehold == '*' || placehold == '/' || placehold == '^'){
             maintext.addnum("1");
         }else if(placehold == '+' || placehold == '-'){
             maintext.addnum("0");
+        }else if(placehold == '('){
+            maintext.addnum("1");
+            maintext.addbracket(")");
         }
         sectext.setdisplay(maintext.display());
         maintext.answer();
-        if(maintext.display() == "DIVBYZERO" || maintext.display() == "nan"){
+        if(maintext.display() == "DIVBYZERO" || maintext.display() == "nan" || maintext.display() == "inf"){
             ui->label_primary->setText(QString::fromStdString("ERROR"));
             ui->label_secondary->setText(QString::fromStdString("cannot divide by zero"));
+            QTimer::singleShot(2000, this, SLOT(seclabelclear()));
+            maintext.setdisplay("ERROR");
+            sectext.setdisplay("");
+        }else if(maintext.display() == "POWERROR"){
+            ui->label_primary->setText(QString::fromStdString("ERROR"));
+            ui->label_secondary->setText(QString::fromStdString("negative base to any power is not supported"));
+            QTimer::singleShot(2000, this, SLOT(seclabelclear()));
+            maintext.setdisplay("ERROR");
+            sectext.setdisplay("");
+        }else if(maintext.display() == "LOGERROR"){
+            ui->label_primary->setText(QString::fromStdString("ERROR"));
+            ui->label_secondary->setText(QString::fromStdString("logarithm of 0 is not defined"));
             QTimer::singleShot(2000, this, SLOT(seclabelclear()));
             maintext.setdisplay("ERROR");
             sectext.setdisplay("");

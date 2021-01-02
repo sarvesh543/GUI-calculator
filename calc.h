@@ -77,6 +77,26 @@ private slots:
 
     void on_clearhistory_clicked();
 
+    void on_button_cuberoot_clicked();
+
+    void on_button_squareroot_clicked();
+
+    void on_button_square_clicked();
+
+    void on_button_cube_clicked();
+
+    void on_button_power_clicked();
+
+    void on_button_sin_clicked();
+
+    void on_button_cos_clicked();
+
+    void on_button_tan_clicked();
+
+    void on_button_ln_clicked();
+
+    void on_button_log_clicked();
+
 private:
     Ui::calc *ui;
     Displaystring maintext;

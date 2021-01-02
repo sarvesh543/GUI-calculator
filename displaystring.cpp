@@ -28,44 +28,78 @@ void Displaystring::addopr(std::string input){
     if(storage[0] == "ERROR"){
         storage = {"0"};
     }
-    if(storage[storage.size() - 1] == "("){
-        if(input =="-"){
-            storage.push_back(input);
-        }else if(isoperator(storage[storage.size()-2])){
-        storage.pop_back();
-        storage.pop_back();
+    unsigned int count = 0;
+    if(storage[storage.size() - 1] == ")"){
         storage.push_back(input);
-        }
-     }else if(storage[storage.size()-1] == "-"){
-        if(storage[storage.size()-2] == "("){
-            if(isoperator(storage[storage.size()-3])){
-                storage.pop_back();
-                storage.pop_back();
-                storage.pop_back();
-                storage.push_back(input);
-            }else if(storage.size() == 2){
-                storage.pop_back();
-                storage[storage.size()-1] = '0';
-                storage.push_back(input);
-            }else{
-                storage.pop_back();
-                storage.pop_back();
-                storage.push_back(input);
+    }else if(storage[storage.size() - 1] == "(" && input == "-"){
+        storage.push_back(input);
+    }else{
+        for(unsigned int i = storage.size() - 1 ; i > 0; i--){
+            if(isnumber(storage[i]) || storage[i] == "."){
+                break;
             }
+            count += 1;
         }
-     }else if(((storage[storage.size()-1] == "(") || storage[storage.size()-1] == ".") && isoperator(storage[storage.size()-2]) && input != "."){
-        storage.pop_back();
-        storage.pop_back();
-        storage.push_back(input);
-     }else if(isoperator(storage[storage.size()-1])){
-        storage.pop_back();
-        storage.push_back(input);
-     }else{
-        storage.push_back(input);
-     }
+        if(count == storage.size()){
+            storage = {"0", input};
+        }else{
+            for(unsigned int i = 0; i < count; i++){
+                storage.pop_back();
+            }
+            storage.push_back(input);
+        }
+    }
+
+//    if(storage[storage.size() - 1] == "("){
+//        if(input =="-"){
+//            storage.push_back(input);
+//        }else if(isoperator(storage[storage.size()-2]) || isspecialfunc(storage[storage.size()-2])){
+//        storage.pop_back();
+//        storage.pop_back();
+//        storage.push_back(input);
+//        }
+//     }else if(storage[storage.size()-1] == "-"){
+//        if(storage[storage.size()-2] == "("){
+//            if(isoperator(storage[storage.size()-3]) || isspecialfunc(storage[storage.size()-3])){
+//                storage.pop_back();
+//                storage.pop_back();
+//                storage.pop_back();
+//                storage.push_back(input);
+//            }else if(storage.size() == 2){
+//                storage.pop_back();
+//                storage[storage.size()-1] = '0';
+//                storage.push_back(input);
+//            }else{
+//                storage.pop_back();
+//                storage.pop_back();
+//                storage.push_back(input);
+//            }
+//        }
+//     }else if(((storage[storage.size()-1] == "(") || storage[storage.size()-1] == ".") && isoperator(storage[storage.size()-2]) && input != "."){
+//        storage.pop_back();
+//        storage.pop_back();
+//        storage.push_back(input);
+//     }else if(isoperator(storage[storage.size()-1])){
+//        storage.pop_back();
+//        storage.push_back(input);
+//     }else{
+//        storage.push_back(input);
+//     }
 }
 
-
+void Displaystring::addfunc(std::string input){
+    if(storage[0] == "0" && storage.size() == 1){
+        storage[0] = input;
+        storage.push_back("(");
+    }else if(storage[storage.size()-1] == "(" || isoperator(storage[storage.size()-1])){
+        storage.push_back(input);
+        storage.push_back("(");
+    }else{
+        storage.push_back("*");
+        storage.push_back(input);
+        storage.push_back("(");
+    }
+}
 
 
 void Displaystring::addbracket(std::string input){
@@ -122,7 +156,12 @@ void Displaystring::clearelement(){
     if(concatenate(storage) == "ERROR"){
         storage = {"0"};
     }else if(!storage.empty() && storage.size() != 1){
-        storage.pop_back();
+        if(isspecialfunc(storage[storage.size() - 2])){
+            storage.pop_back();
+            storage.pop_back();
+        }else{
+            storage.pop_back();
+        }
     }else if(storage.size() == 1){
         storage = {"0"};
     }

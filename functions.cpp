@@ -12,10 +12,29 @@ bool isnumber(std::string num){
     return false;
 }
 
+bool isspecialfunc(std::string func){
+    if(func == "ln" || func == "log" || func == "sin" || func == "cos" || func == "tan"){
+        return true;
+    }
+    return false;
+}
+
+int exponent_log_error(std::vector<std::string> exp){
+    for(unsigned int i = 0; i < exp.size() - 1; i++){
+        if(exp[i] == "^" && exp[i-1][0] == '-'){
+            return 1;
+        }
+        if((exp[i] == "ln" || exp[i] == "log") && stod(exp[i+1]) <= 0.00000000000000000001){
+            return -1;
+        }
+    }
+    return 0;
+}
+
 bool isoperator(std::string opr){
 //checks if entered str is a operator
 //used in displaystring class addtodisplay function
-    if(opr == "*" || opr == "/" || opr == "+" || opr == "-"){
+    if(opr == "*" || opr == "/" || opr == "+" || opr == "-" || opr == "^"){
         return true;
     }
     return false;
@@ -105,7 +124,7 @@ std::string ctos(char A){
     return out;
 }
 
-void condense(std::vector<std::string> &num_and_opr){
+void condensemultdiv(std::vector<std::string> &num_and_opr){
 //takes a string vector containing num,*,/
 // for * or / the function evaluates the number before and after operator with operator and replaces all
 // three with the evaluated output
@@ -135,6 +154,62 @@ void condense(std::vector<std::string> &num_and_opr){
     }
 }
 
+void condenseexp(std::vector<std::string> &power){
+// evaluates exponentiation in the vector
+    double result;
+    for(unsigned int i = 0; i < power.size(); i++){
+        if(power[i] == "^"){
+            if(power[i-1][0] == '-'){
+                result = pow( stod(power[i-1].substr(1, power[i-1].length() - 1)), stod(power[i+1]))*cos(M_PI * stod(power[i+1]));
+                power.erase(power.begin()+i);
+                power.erase(power.begin()+i);
+                power[i-1] = std::to_string(result);
+            }else{
+                result = pow( stod(power[i-1]), stod(power[i+1]));
+                power.erase(power.begin()+i);
+                power.erase(power.begin()+i);
+                power[i-1] = std::to_string(result);
+            }
+            i -= 1;
+        }else if(power.size() == i + 1){
+            break;
+        }
+    }
+}
+
+void condensefunc(std::vector<std::string> &func){
+//evaluates special functions
+    double result;
+    for(unsigned int i = 0; i < func.size(); i++){
+        if(func[i] == "ln"){
+            result = log(stod(func[i+1]));
+            func.erase(func.begin()+i);
+            func[i] = std::to_string(result);
+            i -= 1;
+        }else if(func[i] == "log"){
+            result = log10(stod(func[i+1]));
+            func.erase(func.begin()+i);
+            func[i] = std::to_string(result);
+            i -= 1;
+        }else if(func[i] == "sin"){
+            result = sin(stod(func[i+1]));
+            func.erase(func.begin()+i);
+            func[i] = std::to_string(result);
+            i -= 1;
+        }else if(func[i] == "cos"){
+            result = cos(stod(func[i+1]));
+            func.erase(func.begin()+i);
+            func[i] = std::to_string(result);
+            i -= 1;
+        }else if(func[i] == "tan"){
+            result = tan(stod(func[i+1]));
+            func.erase(func.begin()+i);
+            func[i] = std::to_string(result);
+            i -= 1;
+        }
+    }
+}
+
 double sum(std::vector<std::string> numbers){
 //takes a string vector with num and adds them all up to give a double
     double result = 0;
@@ -151,7 +226,8 @@ std::string evaluate(std::vector<std::string> vect){
 //returns DIVBYZERO if division with zero error happens
     std::vector<std::string> input = vect;
 
-    double temp;
+    std::string temp;
+    int errorresult;
     std::string result;
     std::vector<std::string> store;
     int prevend = 0;
@@ -163,7 +239,7 @@ std::string evaluate(std::vector<std::string> vect){
                     minusind = "-";
                 }
             }
-            if(input[i] == "*" || input[i] == "/"){       
+            if(input[i] == "*" || input[i] == "/" || input[i] == "^"){
                 store.push_back(minusind.append(concatenate(subvector(input, prevend, i - 1))));
                 store.push_back(input[i]);
                 prevend = i + 1;
@@ -175,6 +251,10 @@ std::string evaluate(std::vector<std::string> vect){
                 }
                 prevend = i + 1;
                 minusind = "";
+            }else if(isspecialfunc(input[i])){
+                store.push_back(input[i]);
+                prevend = i + 1;
+                minusind = "";
             }else if(input[i] == "("){
                 bracketcount += 1;
                 for(unsigned int j = i + 1; j < input.size(); j++){
@@ -184,15 +264,19 @@ std::string evaluate(std::vector<std::string> vect){
                         bracketcount -= 1;
                     }
                     if(bracketcount == 0){
-                        if(evaluate(subvector(input, i+1 , j-1)) == "DIVBYZERO"){
+                        temp = evaluate(subvector(input, i+1 , j-1));
+                        if(temp == "POWERROR"){
+                            return "POWERROR";
+                        }else if(temp == "LOGERROR"){
+                            return "LOGERROR";
+                        }else if(temp == "DIVBYZERO"){
                             return "DIVBYZERO";
                         }
-                        temp = stod(evaluate(subvector(input, i+1 , j-1)));
-                        if(temp < 0){
+                        if(stod(temp) < 0){
                             if(minusind == "-"){
-                                store.push_back(std::to_string(-temp));
+                                store.push_back(std::to_string(-stod(temp)));
                             }else{                 
-                                store.push_back(std::to_string(temp));
+                                store.push_back(std::to_string(stod(temp)));
                             }
                         }else{
                             store.push_back(minusind.append(evaluate(subvector(input, i+1 , j-1))));
@@ -200,9 +284,15 @@ std::string evaluate(std::vector<std::string> vect){
                         i = j + 1;
                         prevend = j + 2;
                         if(j < input.size()-1){
-                            if(input[j + 1] == "*" || input[j + 1] == "/"){
+                            if(input[j + 1] == "*" || input[j + 1] == "/" || input[j+1] == "^"){
                                 store.push_back(input[j + 1]);
                             }
+                            if(isspecialfunc(input[j+2])){
+                                store.push_back(input[j+2]);
+                                prevend = j + 3;
+                                i = j+2;
+                            }
+
                         }
                         minusind = "";
                         break;
@@ -214,11 +304,19 @@ std::string evaluate(std::vector<std::string> vect){
                 minusind = "";
             }
     }
+    errorresult = exponent_log_error(store);
+    if(errorresult == 1){
+        return "POWERROR";
+    }else if(errorresult == -1){
+        return "LOGERROR";
+    }
+    condensefunc(store);
+    condenseexp(store);
     if(divbyzero(store)){
         return "DIVBYZERO";
     }
     lonedecimalcorrection(store);
-    condense(store);
+    condensemultdiv(store);
     result = std::to_string(sum(store));
     return result;
 }

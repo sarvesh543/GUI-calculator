@@ -12,10 +12,9 @@ class Displaystring
         Displaystring();
         std::string display();
         void addtodisplay(std::string input);
-        void addbracket(std::string input);
-        //void addexponent(std::string input);
+        void addbracket(std::string input);       
         void addopr(std::string input);
-        //void addfunc(std::string input);
+        void addfunc(std::string input);
         void addnum(std::string input);
         void adddecimal(std::string input);
         void cleardisplay();
