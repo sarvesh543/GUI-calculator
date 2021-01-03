@@ -307,7 +307,7 @@ void calc::on_button_equals_clicked()
             sectext.setdisplay("");
         }else if(maintext.display() == "LOGERROR"){
             ui->label_primary->setText(QString::fromStdString("ERROR"));
-            ui->label_secondary->setText(QString::fromStdString("logarithm of 0 is not defined"));
+            ui->label_secondary->setText(QString::fromStdString("logarithm is only defined for positive numbers"));
             QTimer::singleShot(2000, this, SLOT(seclabelclear()));
             maintext.setdisplay("ERROR");
             sectext.setdisplay("");
