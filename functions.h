@@ -5,9 +5,13 @@
 
 bool isnumber(std::string num);
 
+int exponent_log_error(std::vector<std::string> exp);
+
 std::vector<std::string> subvector(std::vector<std::string> &vect, int index1, int index2);
 
 bool isoperator(std::string opr);
+
+bool isspecialfunc(std::string func);
 
 void lonedecimalcorrection(std::vector<std::string> &dec);
 
@@ -21,7 +25,11 @@ std::vector<std::string> splitstring(std::string str);
 
 std::string ctos(char A);
 
-void condense(std::vector<std::string> &num_and_opr);
+void condensemultdiv(std::vector<std::string> &num_and_opr);
+
+void condensefunc(std::vector<std::string> &func);
+
+void condenseexp(std::vector<std::string> &power);
 
 double sum(std::vector<std::string> numbers);
 
