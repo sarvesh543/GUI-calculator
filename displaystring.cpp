@@ -168,7 +168,7 @@ void Displaystring::clearelement(){
 }
 
 void Displaystring::answer(){
-// passes the expression stored in storage to be evaluated by evaluate function defined in functions.h
+// passes the expression stored in storage to be evaluated by evaluate function defined in functions.h    
     std::string temp;
     temp = evaluate(storage);
     storage = splitstring(temp);

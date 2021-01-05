@@ -1,5 +1,6 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
+#include "displaystring.h"
 #include <vector>
 #include <string>
 
@@ -15,7 +16,9 @@ bool isspecialfunc(std::string func);
 
 void lonedecimalcorrection(std::vector<std::string> &dec);
 
-bool bracketerror(std::string input);
+int bracketerror(std::string input);
+
+void fixbrackets(Displaystring &display, int brkerrorcount);
 
 bool divbyzero(std::vector<std::string> inp);
 
