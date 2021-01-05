@@ -49,42 +49,6 @@ void Displaystring::addopr(std::string input){
             storage.push_back(input);
         }
     }
-
-//    if(storage[storage.size() - 1] == "("){
-//        if(input =="-"){
-//            storage.push_back(input);
-//        }else if(isoperator(storage[storage.size()-2]) || isspecialfunc(storage[storage.size()-2])){
-//        storage.pop_back();
-//        storage.pop_back();
-//        storage.push_back(input);
-//        }
-//     }else if(storage[storage.size()-1] == "-"){
-//        if(storage[storage.size()-2] == "("){
-//            if(isoperator(storage[storage.size()-3]) || isspecialfunc(storage[storage.size()-3])){
-//                storage.pop_back();
-//                storage.pop_back();
-//                storage.pop_back();
-//                storage.push_back(input);
-//            }else if(storage.size() == 2){
-//                storage.pop_back();
-//                storage[storage.size()-1] = '0';
-//                storage.push_back(input);
-//            }else{
-//                storage.pop_back();
-//                storage.pop_back();
-//                storage.push_back(input);
-//            }
-//        }
-//     }else if(((storage[storage.size()-1] == "(") || storage[storage.size()-1] == ".") && isoperator(storage[storage.size()-2]) && input != "."){
-//        storage.pop_back();
-//        storage.pop_back();
-//        storage.push_back(input);
-//     }else if(isoperator(storage[storage.size()-1])){
-//        storage.pop_back();
-//        storage.push_back(input);
-//     }else{
-//        storage.push_back(input);
-//     }
 }
 
 void Displaystring::addfunc(std::string input){
