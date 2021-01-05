@@ -82,7 +82,7 @@ void lonedecimalcorrection(std::vector<std::string> &dec){
     }
 }
 
-bool bracketerror(std::string input){
+int bracketerror(std::string input){
 //checks for invalid bracket syntax before string is evaluated
     int brkcount = 0;
     for(unsigned int i = 0; i < input.length(); i++){
@@ -92,13 +92,19 @@ bool bracketerror(std::string input){
             brkcount -= 1;
         }
         if(brkcount < 0){
-            return true;     //if any close bracket comes before open bracket which is invalid syntax
+            return -1;     //if any close bracket comes before open bracket which is invalid syntax
         }                    //then bracket count becomes negative
     }
     if(brkcount > 0){
-        return true;         //if at end of string brkcount is non zero then it indicates a bracket error
+        return brkcount;         //if at end of string brkcount is non zero then it indicates a bracket error
     }                        //as the number of open brackets does not equal close brackets
-    return false;            //if none of above are true at end of string then there is no bracket error
+    return 0;            //if none of above are true at end of string then there is no bracket error
+}
+
+void fixbrackets(Displaystring &display, int brkerrorcount){
+    for(int i = 0; i < brkerrorcount; i++){
+        display.addbracket(")");
+    }
 }
 
 bool divbyzero(std::vector<std::string> inp){
@@ -224,6 +230,7 @@ std::string evaluate(std::vector<std::string> vect){
 //takes input string and gives the output num in form of string
 //uses recursion to evaluate brackets
 //returns DIVBYZERO if division with zero error happens
+
     std::vector<std::string> input = vect;
 
     std::string temp;
@@ -234,27 +241,16 @@ std::string evaluate(std::vector<std::string> vect){
     std::string minusind = "";
     int bracketcount = 0;
     for(unsigned int i = 0; i < input.size(); i++){
-            if(prevend > 0){
-                if(input[abs(prevend - 1)] == "-"){
-                    minusind = "-";
+            if(isoperator(input[i])){
+                if(i != unsigned(prevend)){
+                    store.push_back(concatenate(subvector(input, prevend, i - 1)));
                 }
+                store.push_back(input[i]);
+                prevend = i + 1;
             }
-            if(input[i] == "*" || input[i] == "/" || input[i] == "^"){
-                store.push_back(minusind.append(concatenate(subvector(input, prevend, i - 1))));
+            else if(isspecialfunc(input[i])){
                 store.push_back(input[i]);
                 prevend = i + 1;
-                minusind = "";
-            }else if(input[i] == "+" || input[i] == "-"){
-                if(input[i] == "-" && i == 0){
-                }else{
-                    store.push_back(minusind.append(concatenate(subvector(input, prevend, i - 1))));
-                }
-                prevend = i + 1;
-                minusind = "";
-            }else if(isspecialfunc(input[i])){
-                store.push_back(input[i]);
-                prevend = i + 1;
-                minusind = "";
             }else if(input[i] == "("){
                 bracketcount += 1;
                 for(unsigned int j = i + 1; j < input.size(); j++){
@@ -271,16 +267,9 @@ std::string evaluate(std::vector<std::string> vect){
                             return "LOGERROR";
                         }else if(temp == "DIVBYZERO"){
                             return "DIVBYZERO";
-                        }
-                        if(stod(temp) < 0){
-                            if(minusind == "-"){
-                                store.push_back(std::to_string(-stod(temp)));
-                            }else{                 
-                                store.push_back(std::to_string(stod(temp)));
-                            }
-                        }else{
-                            store.push_back(minusind.append(evaluate(subvector(input, i+1 , j-1))));
-                        }
+                        }                     
+                        store.push_back(temp);
+
                         i = j + 1;
                         prevend = j + 2;
                         if(j < input.size()-1){
@@ -294,14 +283,12 @@ std::string evaluate(std::vector<std::string> vect){
                             }
 
                         }
-                        minusind = "";
                         break;
                     }
                 }
             }else if(i == input.size()-1){
-                store.push_back(minusind.append(concatenate(subvector(input, prevend, i))));
+                store.push_back(concatenate(subvector(input, prevend, i)));
                 prevend = i + 1;
-                minusind = "";
             }
     }
     errorresult = exponent_log_error(store);
@@ -317,6 +304,18 @@ std::string evaluate(std::vector<std::string> vect){
     }
     lonedecimalcorrection(store);
     condensemultdiv(store);
+
+    std::string tempstr;
+    for(unsigned int i = 0; i < store.size(); i++){
+        if(store[i] == "-"){
+            tempstr = std::to_string(-stod(store[i+1]));
+            store[i+1] = tempstr;
+            store.erase(store.begin()+i);
+        }else if(store[i] == "+"){
+            store.erase(store.begin()+i);
+        }
+    }
+
     result = std::to_string(sum(store));
     return result;
 }

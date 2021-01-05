@@ -6,6 +6,7 @@
 #include <QString>
 #include <string>
 #include <QTimer>
+#include <iostream>
 
 //All
 //most of logic is in other classes and functions
@@ -27,8 +28,12 @@ calc::~calc()
 
 void calc::seclabelclear()
 {
-    if(ui->label_secondary->text() == QString::fromStdString("cannot divide by zero") || ui->label_secondary->text() == QString::fromStdString("invalid brackets")){
-        ui->label_secondary->setText(QString::fromStdString(""));
+    if(ui->label_secondary->text() == QString::fromStdString("cannot divide by zero")
+       || ui->label_secondary->text() == QString::fromStdString("invalid brackets")
+       || ui->label_secondary->text() == QString::fromStdString("negative base to any power is not supported")
+       || ui->label_secondary->text() == QString::fromStdString("logarithm is only defined for positive numbers")
+       || ui->label_secondary->text() == QString::fromStdString("An attempt was made to fix brackets")){
+        ui->label_secondary->setText(QString::fromStdString(sectext.display()));
     }
 }
 
@@ -275,8 +280,9 @@ void calc::on_button_log_clicked()
 
 void calc::on_button_equals_clicked()
 {
-    if(bracketerror(maintext.display())){
+    if(bracketerror(maintext.display()) == -1){
         maintext.setdisplay("ERROR");
+        sectext.setdisplay("");
         ui->label_primary->setText(QString::fromStdString("ERROR"));
         ui->label_secondary->setText(QString::fromStdString("invalid brackets"));
         QTimer::singleShot(2000, this, SLOT(seclabelclear()));
@@ -291,8 +297,17 @@ void calc::on_button_equals_clicked()
             maintext.addnum("1");
             maintext.addbracket(")");
         }
-        sectext.setdisplay(maintext.display());
-        maintext.answer();
+        int brkerrorcount = bracketerror(maintext.display());
+        if(brkerrorcount > 0){
+            fixbrackets(maintext , brkerrorcount);
+            sectext.setdisplay(maintext.display());
+            maintext.answer();
+            ui->label_secondary->setText(QString::fromStdString("An attempt was made to fix brackets"));
+            QTimer::singleShot(2000, this, SLOT(seclabelclear()));
+        }else{
+            sectext.setdisplay(maintext.display());
+            maintext.answer();
+        }
         if(maintext.display() == "DIVBYZERO" || maintext.display() == "nan" || maintext.display() == "inf"){
             ui->label_primary->setText(QString::fromStdString("ERROR"));
             ui->label_secondary->setText(QString::fromStdString("cannot divide by zero"));
@@ -313,7 +328,9 @@ void calc::on_button_equals_clicked()
             sectext.setdisplay("");
         }else{
             ui->label_primary->setText(QString::fromStdString(maintext.display()));
-            ui->label_secondary->setText(QString::fromStdString(sectext.display()));
+            if(brkerrorcount == 0){
+                ui->label_secondary->setText(QString::fromStdString(sectext.display()));
+            }
             history.removelastdata();
             history.addata(maintext.display(), sectext.display());
             updatehistory();
